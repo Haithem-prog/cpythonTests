@@ -6,6 +6,8 @@ such it requires the injection of specific modules and attributes in order to
 work. One should use importlib as the public-facing version of this module.
 
 """
+
+
 #
 # IMPORTANT: Whenever making changes to this module, be sure to run a top-level
 # `make regen-importlib` followed by `make` in order to get the frozen version
@@ -1345,10 +1347,15 @@ def _find_and_load_unlocked(name, import_):
 
 _NEEDS_LOADING = object()
 
-
+x = 0
 def _find_and_load(name, import_):
     """Find and load the module."""
-
+    y = x + 1
+    try:
+        if sys.stdout is not None:
+            print("hello there from other python build:", name)
+    except Exception:
+        pass
     # Optimization: we avoid unneeded module locking if the module
     # already exists in sys.modules and is fully initialized.
     module = sys.modules.get(name, _NEEDS_LOADING)
