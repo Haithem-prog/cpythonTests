@@ -1347,10 +1347,10 @@ def _find_and_load_unlocked(name, import_):
 
 _NEEDS_LOADING = object()
 
-x = 0
+
 def _find_and_load(name, import_):
     """Find and load the module."""
-    y = x + 1
+    
     try:
         if sys.stdout is not None:
             print("hello there from other python build:", name)
@@ -1459,6 +1459,53 @@ def _calc___package__(globals):
 
 
 def __import__(name, globals=None, locals=None, fromlist=(), level=0):
+
+    '''
+    User code: import x
+    │
+    ▼
+__import__('x', ...)              ← _bootstrap.__import__ (the builtin)
+    │
+    ▼
+_gcd_import('x')                  ← _bootstrap  (handles dotted names / parents)
+    │
+    ▼
+_find_and_load('x')               ← _bootstrap  ← your print lives here
+    │
+    ▼
+sys.modules['x'] hit? ──yes──► return it (no further work)
+    │ no
+    ▼
+_find_and_load_unlocked('x')      ← _bootstrap
+    │
+    ▼
+_find_spec('x', path)             ← _bootstrap  (walks sys.meta_path)
+    │
+    ├─ BuiltinImporter.find_spec     ← _bootstrap         (for builtins)
+    ├─ FrozenImporter.find_spec      ← _bootstrap         (for frozen modules)
+    └─ PathFinder.find_spec          ← _bootstrap_external (for disk modules)
+                │
+                ▼
+            _fill_cache / find_spec   ← _bootstrap_external  (scans sys.path)
+                │
+                ▼
+            FileFinder.find_spec      ← _bootstrap_external  (looks for x.py, x/__init__.py, x.pyd, …)
+                │
+                ▼
+            ModuleSpec(loader=SourceFileLoader(...))   ← _bootstrap_external
+    │
+    ▼
+module_from_spec(spec)            ← _bootstrap  (allocates the module object)
+    │
+    ▼
+loader.exec_module(module)        ← _bootstrap_external  (reads source, compiles, runs)
+    │
+    ▼
+sys.modules['x'] = module         ← _bootstrap  (caches result)
+    │
+    ▼
+return module
+    '''
     """Import a module.
 
     The 'globals' argument is used to infer where the import is occurring from
