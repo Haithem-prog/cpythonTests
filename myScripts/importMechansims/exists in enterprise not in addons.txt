@@ -1,0 +1,7 @@
+delivery_fedex_certified
+l10n_be_saft
+l10n_bg_saft
+l10n_pl_reports_vat_eu
+pos_sale_purchase_stock_inter_company_rules
+sale_renting_intrastat
+whatsapp_oauth

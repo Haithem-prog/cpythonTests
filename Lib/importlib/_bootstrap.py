@@ -1459,7 +1459,11 @@ def _calc___package__(globals):
 
 
 def __import__(name, globals=None, locals=None, fromlist=(), level=0):
-
+    try:
+        if sys.stdout is not None:
+            print("\n", name, globals, locals, fromlist, level)
+    except Exception:
+            pass
     '''
     User code: import x
     │
